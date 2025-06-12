@@ -61,7 +61,6 @@ cd SmartCare-360
 
 ### Backend
 ```bash
-Copy
 Edit
 ```
 ### Frontend
