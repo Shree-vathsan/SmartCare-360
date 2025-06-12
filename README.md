@@ -61,7 +61,8 @@ cd SmartCare-360
 
 ### Backend
 ```bash
-Edit
+cd server
+npm init
 ```
 ### Frontend
 ```bash
