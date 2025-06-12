@@ -60,7 +60,7 @@ const LoginPage = () => {
     login(data.token, data.user);
 
     switch (role) {
-      case 'doctor': navigate('https://smartcare-api-bcp9.onrender.com/doctor/dashboard'); break;
+      case 'doctor': window.location.href = 'https://smartcare-api-bcp9.onrender.com/doctor/dashboard';
       case 'patient': navigate('v/patient/dashboard'); break;
       case 'admin': navigate('https://smartcare-api-bcp9.onrender.com/admin/dashboard'); break;
       default: navigate('/');
