@@ -1,5 +1,7 @@
 # 🏥 SmartCare 360° – Patient Management System
 
+Live demo : https://smartcare360.vercel.app/
+
 SmartCare 360° is a modern full-stack web application that streamlines healthcare management for doctors, patients, and administrators. Built with **React + TypeScript** on the frontend and **Node.js + Express + SQLite** on the backend, it supports secure authentication, dynamic dashboards, appointment handling, and more.
 
 ---
