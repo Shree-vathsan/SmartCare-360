@@ -47,9 +47,9 @@ const PatientDashboard = () => {
       };
 
       const [doctorsRes, appointmentsRes, prescriptionsRes] = await Promise.all([
-        fetch('/api/users/doctors', { headers }),
-        fetch('/api/appointments', { headers }),
-        fetch('/api/prescriptions', { headers })
+        fetch('https://smartcare-api-bcp9.onrender.com/api/users/doctors', { headers }),
+        fetch('https://smartcare-api-bcp9.onrender.com/api/appointments', { headers }),
+        fetch('https://smartcare-api-bcp9.onrender.com/api/prescriptions', { headers })
       ]);
 
       if (doctorsRes.ok) {
@@ -73,7 +73,7 @@ const PatientDashboard = () => {
 
   const handleCreateAppointment = async (appointmentData, bookingMethod = 'form') => {
     try {
-      const response = await fetch('/api/appointments', {
+      const response = await fetch('https://smartcare-api-bcp9.onrender.com/api/appointments', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

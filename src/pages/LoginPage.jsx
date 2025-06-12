@@ -39,7 +39,7 @@ const LoginPage = () => {
   setError('');
 
   try {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('https://smartcare-api-bcp9.onrender.com/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,9 +60,9 @@ const LoginPage = () => {
     login(data.token, data.user);
 
     switch (role) {
-      case 'doctor': navigate('/doctor/dashboard'); break;
-      case 'patient': navigate('/patient/dashboard'); break;
-      case 'admin': navigate('/admin/dashboard'); break;
+      case 'doctor': navigate('https://smartcare-api-bcp9.onrender.com/doctor/dashboard'); break;
+      case 'patient': navigate('v/patient/dashboard'); break;
+      case 'admin': navigate('https://smartcare-api-bcp9.onrender.com/admin/dashboard'); break;
       default: navigate('/');
     }
   } catch (err) {

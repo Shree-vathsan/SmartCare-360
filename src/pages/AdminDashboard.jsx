@@ -32,8 +32,8 @@ const AdminDashboard = () => {
       };
 
       const [usersRes, appointmentsRes] = await Promise.all([
-        fetch('/api/users', { headers }),
-        fetch('/api/appointments', { headers })
+        fetch('https://smartcare-api-bcp9.onrender.com/api/users', { headers }),
+        fetch('https://smartcare-api-bcp9.onrender.com/api/appointments', { headers })
       ]);
 
       if (usersRes.ok) {
@@ -57,7 +57,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('https://smartcare-api-bcp9.onrender.com/api/auth/register', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      const response = await fetch(`/api/users/${userId}`, {
+      const response = await fetch(`https://smartcare-api-bcp9.onrender.com/api/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
