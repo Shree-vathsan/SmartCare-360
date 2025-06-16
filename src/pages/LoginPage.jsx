@@ -6,12 +6,9 @@ import { Heart, Stethoscope, Shield, User } from 'lucide-react';
 const LoginPage = () => {
   const { role } = useParams();
   const navigate = useNavigate();
-  const { login } = useAuth();
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const { setUser } = useAuth();
+
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -34,50 +31,49 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-  try {
-    const response = await fetch('https://smartcare-api-bcp9.onrender.com/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...formData,
-        role
-      }),
-    });
+    try {
+      const response = await fetch('https://smartcare-api-bcp9.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // ✅ Important
+        body: JSON.stringify({ ...formData, role }),
+      });
 
-    const text = await response.text(); // read raw text
-    const data = text ? JSON.parse(text) : {}; // parse only if not empty
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed');
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // ✅ Fetch current user info using token from httpOnly cookie
+      const meRes = await fetch('https://smartcare-api-bcp9.onrender.com/api/auth/me', {
+        credentials: 'include',
+      });
+
+      const user = await meRes.json();
+      setUser(user); // store user in context (no token)
+
+      // ✅ Navigate based on role
+      switch (user.role) {
+        case 'doctor': navigate('/doctor/dashboard'); break;
+        case 'patient': navigate('/patient/dashboard'); break;
+        case 'admin': navigate('/admin/dashboard'); break;
+        default: navigate('/');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    login(data.token, data.user);
-
-    switch (role) {
-      case 'doctor': navigate('/doctor/dashboard'); break;
-      case 'patient': navigate('/patient/dashboard'); break;
-      case 'admin': navigate('/admin/dashboard'); break;
-      default: navigate('/');
-    }
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -91,11 +87,7 @@ const LoginPage = () => {
           <p>Welcome to SmartCare</p>
         </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">

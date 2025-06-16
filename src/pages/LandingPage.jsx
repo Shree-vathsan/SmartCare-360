@@ -7,7 +7,7 @@ const LandingPage = () => {
     <div className="landing-page">
       <div className="landing-header">
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '0rem' }}>
-        <img src="/logo.png" height={375} width={500} />
+        <img src="logo.png" height={375} width={500} />
         <p className="slogan" style={{gap:'0px'}} >Smart Healthcare at Your Fingertips</p>
       </div>
 

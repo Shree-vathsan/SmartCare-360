@@ -15,20 +15,11 @@ router.post('/login', async (req, res) => {
     }
 
     db.get('SELECT * FROM users WHERE email = ? AND role = ?', [email, role], async (err, user) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
+      if (err) return res.status(500).json({ error: 'Database error' });
+      if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
       const isValidPassword = await bcrypt.compare(password, user.password);
-
-      if (!isValidPassword) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
+      if (!isValidPassword) return res.status(401).json({ error: 'Invalid credentials' });
 
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
@@ -36,25 +27,22 @@ router.post('/login', async (req, res) => {
         { expiresIn: '24h' }
       );
 
+      // ✅ Set token in httpOnly cookie
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: true, // Set false if testing locally without HTTPS
+        sameSite: 'None',
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+      });
+
       // Log the login
       db.run(`
         INSERT INTO system_logs (user_id, action, details)
-        VALUES (?, ?, ?)
-      `, [user.id, 'login', `User logged in as ${role}`]);
+        VALUES (?, ?, ?)`,
+        [user.id, 'login', `User logged in as ${role}`]
+      );
 
-      res.json({
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          phone: user.phone,
-          specialization: user.specialization,
-          licenseNumber: user.license_number
-        }
-      });
+      res.json({ message: 'Login successful' });
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -62,42 +50,40 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Register (for demo purposes)
-router.post('/register', async (req, res) => {
+// 🔓 Logout
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None'
+  });
+  res.json({ message: 'Logged out successfully' });
+});
+
+// 🔐 Get current user from token
+router.get('/me', (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
-    const { email, password, role, firstName, lastName, phone, specialization, licenseNumber } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
 
-    if (!email || !password || !role || !firstName || !lastName) {
-      return res.status(400).json({ error: 'All required fields must be provided' });
-    }
+    db.get('SELECT * FROM users WHERE id = ?', [decoded.id], (err, user) => {
+      if (err || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-    db.get('SELECT id FROM users WHERE email = ?', [email], async (err, existingUser) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-
-      if (existingUser) {
-        return res.status(409).json({ error: 'User already exists' });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-
-      db.run(`
-        INSERT INTO users (email, password, role, first_name, last_name, phone, specialization, license_number)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [email, hashedPassword, role, firstName, lastName, phone, specialization, licenseNumber], function(err) {
-        if (err) {
-          console.error('Database error:', err);
-          return res.status(500).json({ error: 'Internal server error' });
-        }
-
-        res.status(201).json({ message: 'User created successfully', userId: this.lastID });
+      res.json({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        phone: user.phone,
+        specialization: user.specialization,
+        licenseNumber: user.license_number
       });
     });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' });
   }
 });
 
