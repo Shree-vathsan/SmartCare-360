@@ -126,11 +126,7 @@ MIT © Shree Vathsan
 ## 🌟 Contributions
 
 Pull requests are welcome! If you'd like to add new features, fix bugs, or improve docs, feel free to fork and submit a PR.
-```bash 
----
 
-Let me know if you want it customized more for deployment (like with render, vercel, docker, etc.) or if you want me to add badge shields or usage examples!
-```
 
 
 
